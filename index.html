@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fretwork - acoustic guitar, properly taught</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d0b09'/%3E%3Cg stroke='%23e0a340' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M8 7v18M13 7v18M19 7v18M24 7v18'/%3E%3C/g%3E%3Cg stroke='%23efe7dc' stroke-width='1.2' opacity='.55'%3E%3Cpath d='M5 12h22M5 20h22'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<div id="audioGate" class="audio-gate">Click anywhere to switch the audio on</div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>Fretwork</strong>
+        <em>acoustic steel-string</em>
+      </span>
+    </div>
+    <nav id="nav" class="nav" aria-label="Sections"></nav>
+    <div class="sidebar-foot">
+      <span class="phase-badge">Phase 1</span>
+      <span class="phase-note">engine &amp; tools</span>
+    </div>
+  </aside>
+
+  <main id="viewRoot" class="view-root"></main>
+
+</div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<!-- Theory engines. chords.js must load before scales.js: the diatonic
+     harmoniser builds its reverse lookup from the chord quality table. -->
+<script src="js/theory/notes.js"></script>
+<script src="js/theory/chords.js"></script>
+<script src="js/theory/scales.js"></script>
+
+<!-- Audio core. -->
+<script src="js/core/audio.js"></script>
+<script src="js/core/synth-guitar.js"></script>
+<script src="js/core/metronome.js"></script>
+<script src="js/core/pitch.js"></script>
+
+<!-- Renderers. -->
+<script src="js/render/chord-diagram.js"></script>
+<script src="js/render/fretboard.js"></script>
+<script src="js/render/tab.js"></script>
+
+<!-- Shell, then features. Registration order sets the nav order. -->
+<script src="js/app.js"></script>
+<script src="js/features/tools.js"></script>
+
+<script>
+(function (GL) {
+  'use strict';
+  /* Phases 2-6 land here. The nav lists them now so the shape of the app is
+     honest about what is coming rather than hiding it. */
+  GL.app.stub('course', 'Course', '&#9834;',
+    'Fifty lessons across barre chords, fingerstyle, fretboard and improvisation, rhythm, theory and alternate tunings.', 3);
+  GL.app.stub('chords', 'Chords', '&#9639;',
+    'Search any chord and browse every playable voicing up the neck, linked to its CAGED form.', 2);
+  GL.app.stub('scales', 'Scales', '&#9838;',
+    'Forty-five scales and modes in every key, mapped across the neck in CAGED boxes and three-notes-per-string.', 2);
+  GL.app.stub('songs', 'Songs', '&#9836;',
+    'A public-domain repertoire with playable tab, and an index of well-known songs to practise the changes of.', 4);
+  GL.app.stub('jam', 'Jam', '&#9835;',
+    'Backing tracks generated from any progression, in any key, at any tempo.', 5);
+  GL.app.stub('ear', 'Ear', '&#9834;',
+    'Intervals, chord qualities and progressions, by ear.', 5);
+  GL.app.stub('theory', 'Theory', '&#9837;',
+    'Circle of fifths, diatonic harmony, and how progressions actually work.', 3);
+  GL.app.stub('progress', 'Progress', '&#9633;',
+    'Practice log, streaks, and what you have covered.', 6);
+
+  GL.app.start();
+}(window.GL));
+</script>
+
+</body>
+</html>
