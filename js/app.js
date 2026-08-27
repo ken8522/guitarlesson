@@ -141,6 +141,16 @@
     if (order.indexOf(id) === -1) order.push(id);
   }
 
+  /* Nav order would otherwise be script-load order, which puts every stub after
+     every built feature. Anything not listed keeps its registration order at the
+     end. The first entry is also the default route. */
+  function setNavOrder(ids) {
+    order.sort(function (a, b) {
+      var ia = ids.indexOf(a), ib = ids.indexOf(b);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+  }
+
   function navigate(id, params) {
     var target = views[id] ? id : order[0];
     var hash = '#/' + target + (params ? '?' + params : '');
@@ -282,6 +292,7 @@
     save: save,
     tuning: tuning,
     register: register,
+    setNavOrder: setNavOrder,
     stub: stub,
     navigate: navigate,
     toast: toast,

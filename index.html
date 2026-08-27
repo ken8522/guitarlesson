@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fretwork - acoustic guitar, properly taught</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d0b09'/%3E%3Cg stroke='%23e0a340' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M8 7v18M13 7v18M19 7v18M24 7v18'/%3E%3C/g%3E%3Cg stroke='%23efe7dc' stroke-width='1.2' opacity='.55'%3E%3Cpath d='M5 12h22M5 20h22'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=1">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -23,8 +23,8 @@
     </div>
     <nav id="nav" class="nav" aria-label="Sections"></nav>
     <div class="sidebar-foot">
-      <span class="phase-badge">Phase 1</span>
-      <span class="phase-note">engine &amp; tools</span>
+      <span class="phase-badge">Phase 2</span>
+      <span class="phase-note">libraries</span>
     </div>
   </aside>
 
@@ -51,21 +51,20 @@
 <script src="js/render/fretboard.js"></script>
 <script src="js/render/tab.js"></script>
 
-<!-- Shell, then features. Registration order sets the nav order. -->
+<!-- Shell, then features. -->
 <script src="js/app.js"></script>
 <script src="js/features/tools.js"></script>
+<script src="js/features/chordlib.js"></script>
+<script src="js/features/scalelib.js"></script>
+<script src="js/features/fretboard-trainer.js"></script>
 
 <script>
 (function (GL) {
   'use strict';
-  /* Phases 2-6 land here. The nav lists them now so the shape of the app is
+  /* Phases 3-6 land here. The nav lists them now so the shape of the app is
      honest about what is coming rather than hiding it. */
   GL.app.stub('course', 'Course', '&#9834;',
     'Fifty lessons across barre chords, fingerstyle, fretboard and improvisation, rhythm, theory and alternate tunings.', 3);
-  GL.app.stub('chords', 'Chords', '&#9639;',
-    'Search any chord and browse every playable voicing up the neck, linked to its CAGED form.', 2);
-  GL.app.stub('scales', 'Scales', '&#9838;',
-    'Forty-five scales and modes in every key, mapped across the neck in CAGED boxes and three-notes-per-string.', 2);
   GL.app.stub('songs', 'Songs', '&#9836;',
     'A public-domain repertoire with playable tab, and an index of well-known songs to practise the changes of.', 4);
   GL.app.stub('jam', 'Jam', '&#9835;',
@@ -77,6 +76,10 @@
   GL.app.stub('progress', 'Progress', '&#9633;',
     'Practice log, streaks, and what you have covered.', 6);
 
+  GL.app.setNavOrder([
+    'tools', 'course', 'chords', 'scales', 'trainer',
+    'songs', 'jam', 'ear', 'theory', 'progress'
+  ]);
   GL.app.start();
 }(window.GL));
 </script>

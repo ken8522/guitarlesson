@@ -31,9 +31,17 @@ counts while `file://` does not.
 | `js/render/*.js` | Chord boxes, full-neck diagrams, and tab notation, all as themed SVG. |
 | `js/features/tools.js` | The practice bench: tuner, metronome, sound check. |
 
-**Phases 2–6 (to come)** — chord and scale libraries, ~50 lessons, the song
-library and tab player, jam tracks and ear training, practice logging.
-The nav lists them now so the shape of the app is honest about what is coming.
+**Phase 2 (done) — the libraries**
+
+| File | What it does |
+|---|---|
+| `js/features/chordlib.js` | Chord explorer. Every playable voicing up the neck with its CAGED form, the chord's notes on the full fretboard, which keys it is diatonic to and what its function is there, and where to go next. |
+| `js/features/scalelib.js` | Scale explorer. Whole neck, CAGED boxes or three-notes-per-string, played back over a root drone, with the diatonic chords the scale harmonises into. |
+| `js/features/fretboard-trainer.js` | Three drills: name the note, find the note, find the interval. The last one is answered by clicking the neck, and is the one that makes CAGED usable. |
+
+**Phases 3–6 (to come)** — ~50 lessons, the song library and tab player, jam
+tracks and ear training, practice logging. The nav lists them now so the shape
+of the app is honest about what is coming.
 
 ## The song library, and copyright
 

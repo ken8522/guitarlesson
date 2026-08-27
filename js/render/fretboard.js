@@ -106,6 +106,19 @@
              '" r="' + r(sh * 0.46) + '"/>');
     });
 
+    /* Transparent hit targets over every position, so the whole neck can be
+       clicked. They go last: SVG has no z-index, so paint order is the only
+       way to keep them above the dots. */
+    if (opts.interactive) {
+      for (var hs = 0; hs < 6; hs++) {
+        for (var hf = from; hf <= to; hf++) {
+          s.push('<rect class="fb-hit" data-s="' + hs + '" data-f="' + hf +
+                 '" x="' + r(xCenter(hf) - fw / 2) + '" y="' + r(y(hs) - sh / 2) +
+                 '" width="' + r(fw) + '" height="' + r(sh) + '"/>');
+        }
+      }
+    }
+
     s.push('</svg>');
     return s.join('');
 
@@ -128,6 +141,24 @@
     }, opts.svg || {}));
   }
 
+  /* Delegated click handling for an interactive neck. Returns the listener so
+     callers can remove it; the handler gets { stringIndex, string, fret }. */
+  function onFretClick(container, handler) {
+    function listener(ev) {
+      var hit = ev.target.closest ? ev.target.closest('.fb-hit') : null;
+      if (!hit) return;
+      var si = Number(hit.getAttribute('data-s'));
+      handler({
+        stringIndex: si,
+        string: GL.notes.strNumber(si),
+        fret: Number(hit.getAttribute('data-f')),
+        element: hit
+      });
+    }
+    container.addEventListener('click', listener);
+    return listener;
+  }
+
   function r(n) { return Math.round(n * 100) / 100; }
   function esc(t) {
     return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -135,4 +166,5 @@
 
   GL.render.fretboard = fretboard;
   GL.render.positionDiagram = positionDiagram;
+  GL.render.onFretClick = onFretClick;
 }(window.GL = window.GL || {}));
