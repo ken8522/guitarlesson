@@ -507,6 +507,213 @@
     return card;
   }
 
+  /* --------------------------------------------- a modern song's own page */
+
+  /* Everything a guitarist needs for a song still in copyright, minus the one
+     thing that cannot be here. The chart is chord names and bar positions --
+     facts about the song -- and the words are one click away on a site that is
+     licensed to publish them. */
+  function renderIndexSong(root, entry) {
+    var chart = GL.findChart ? GL.findChart(entry) : null;
+    var tun = GL.app.tuning();
+    var links = GL.songIndexLinks(entry);
+    var shapes = (chart && chart.sections)
+      ? uniqueChords(chart) : entry.chords;
+
+    root.appendChild(h('div.view-head', [
+      h('button.btn.btn-sm.backlink', {
+        type: 'button', onclick: function () { ui.pane = 'index'; GL.app.navigate('songs'); }
+      }, '‹  Back to the index'),
+      h('h1', entry.title),
+      h('p.lesson-goal', entry.artist + '  ·  ' + entry.year),
+      h('div.songcard-meta', [
+        h('span.pill', 'key of ' + entry.key),
+        chart && chart.capo ? h('span.pill.is-alt', 'capo ' + chart.capo)
+          : (entry.capo ? h('span.pill.is-alt', 'capo ' + entry.capo) : null),
+        chart ? h('span.pill', chart.tempo + ' bpm') : null,
+        chart ? h('span.pill', chart.timeSig[0] + '/' + chart.timeSig[1]) : null,
+        h('span.pill', '•'.repeat(entry.difficulty)),
+        entry.progression ? h('span.pill.is-prog', entry.progression) : null
+      ])
+    ]));
+
+    /* The one thing this app will not print, said once and plainly. */
+    root.appendChild(h('section.card.notice', [
+      h('p.lesson-text', [
+        'The chords and the arrangement are here. The lyrics are not — they are ' +
+        'still in copyright, so they live on a site that is licensed to publish ' +
+        'them. ',
+        h('a', { href: links[0].url, target: '_blank', rel: 'noopener noreferrer' }, 'Open the words and chords'),
+        '.'
+      ])
+    ]));
+
+    if (chart) {
+      if (chart.note) root.appendChild(h('section.card', [h('p.lesson-text', chart.note)]));
+
+      /* Shapes. */
+      root.appendChild(h('section.card', [
+        h('header.card-head', [
+          h('h2', 'The shapes'),
+          h('span.card-tag', chart.capo ? 'with the capo at ' + chart.capo : 'no capo')
+        ]),
+        h('div.lesson-chords', shapes.map(function (sym) {
+          var v = GL.chords.voicings(sym, { tuning: tun, maxFret: 9, limit: 1 })[0];
+          if (!v) return h('div.empty', sym);
+          return h('button.lesson-chord', {
+            type: 'button',
+            onclick: function () {
+              GL.audio.unlock();
+              GL.guitar.strum({ frets: v.frets, tuning: tun, velocity: 0.82, tone: 'steel' });
+            }
+          }, [h('div', { html: GL.render.voicingDiagram(v, { name: sym, size: 'md' }) })]);
+        }))
+      ]));
+
+      root.appendChild(renderChart(entry, chart, tun));
+    } else {
+      /* No full chart written yet -- still give the chords and a jam track. */
+      root.appendChild(h('section.card', [
+        h('header.card-head', [h('h2', 'The chords'), h('span.card-tag', entry.chords.length + ' shapes')]),
+        h('div.lesson-chords', entry.chords.map(function (sym) {
+          var v = GL.chords.voicings(sym, { tuning: tun, maxFret: 9, limit: 1 })[0];
+          if (!v) return h('div.empty', sym);
+          return h('button.lesson-chord', {
+            type: 'button',
+            onclick: function () {
+              GL.audio.unlock();
+              GL.guitar.strum({ frets: v.frets, tuning: tun, velocity: 0.82, tone: 'steel' });
+            }
+          }, [h('div', { html: GL.render.voicingDiagram(v, { name: sym, size: 'md' }) })]);
+        })),
+        h('p.hint', 'No bar-by-bar chart written for this one yet. The loop below is built ' +
+          'from its chords, which is enough to practise the changes.')
+      ]));
+      root.appendChild(renderJamCard(entry, tun));
+    }
+
+    root.appendChild(h('section.card', [
+      h('header.card-head', [h('h2', 'Find it elsewhere'), h('span.card-tag', 'opens in a new tab')]),
+      h('div.row.row-wrap', links.map(function (l) {
+        return h('a.btn', { href: l.url, target: '_blank', rel: 'noopener noreferrer' }, l.label);
+      }))
+    ]));
+  }
+
+  function uniqueChords(chart) {
+    var seen = {}, out = [];
+    chart.sections.forEach(function (s) {
+      s.bars.forEach(function (c) { if (!seen[c]) { seen[c] = 1; out.push(c); } });
+    });
+    return out;
+  }
+
+  function renderChart(entry, chart, tun) {
+    var card = h('section.card');
+    card.appendChild(h('header.card-head', [
+      h('h2', 'The chart'),
+      h('span.card-tag', chart.feel || '')
+    ]));
+
+    if (chart.strum) {
+      card.appendChild(h('div.callout.is-tip', [
+        h('span.callout-tag', 'Right hand'),
+        h('p', chart.strum)
+      ]));
+    }
+
+    /* Every section, bar by bar. */
+    var flat = [];
+    chart.sections.forEach(function (s) {
+      card.appendChild(h('h3.detail-sub', s.name));
+      var row = h('div.barchart');
+      s.bars.forEach(function (c) {
+        flat.push(c);
+        row.appendChild(h('span.barcell.is-downbeat', c));
+      });
+      card.appendChild(row);
+    });
+
+    /* Play the whole arrangement, not just one loop. */
+    var beats = chart.timeSig[0];
+    var nowPlaying = h('span.hint');
+    var tempoLabel = h('span.field-value', chart.tempo + ' bpm');
+    var tempoSlider = h('input.slider', {
+      type: 'range', min: 40, max: 200, step: 2, value: Math.min(200, chart.tempo),
+      oninput: function () {
+        tempoLabel.textContent = this.value + ' bpm';
+        if (backing) backing.setTempo(Number(this.value));
+      }
+    });
+    var styleSelect = h('select.select', {
+      onchange: function () { if (backing) backing.setStyle(this.value); }
+    }, Object.keys(GL.backing.STYLES).map(function (k) {
+      var def = beats === 3 ? 'waltz' : beats === 6 ? 'sixEight' : 'folk';
+      return h('option', { value: k, selected: k === def }, k.charAt(0).toUpperCase() + k.slice(1));
+    }));
+
+    var playBtn = h('button.btn.btn-primary', {
+      type: 'button',
+      onclick: function () {
+        if (backing && backing.isRunning()) {
+          backing.stop();
+          this.textContent = 'Play the whole song';
+          this.classList.remove('is-live');
+          nowPlaying.textContent = '';
+          GL.app.$$('.barcell').forEach(function (b) { b.classList.remove('is-now'); });
+          return;
+        }
+        backing = GL.backing.create({
+          chords: flat, beatsPerBar: beats, style: styleSelect.value,
+          tempo: Number(tempoSlider.value), tuning: tun,
+          onBar: function (i, chord, when) {
+            var delay = Math.max(0, (when - GL.audio.now()) * 1000);
+            setTimeout(function () {
+              nowPlaying.textContent = 'bar ' + (i + 1) + ' of ' + flat.length + '  ·  ' + chord.symbol;
+              GL.app.$$('.barcell').forEach(function (b, n) { b.classList.toggle('is-now', n === i); });
+            }, delay);
+          }
+        });
+        backing.start();
+        this.textContent = 'Stop';
+        this.classList.add('is-live');
+      }
+    }, 'Play the whole song');
+
+    card.appendChild(h('div.grid.grid-2', [
+      h('label.field', [h('span', 'Style'), styleSelect]),
+      h('label.field', [h('span', tempoLabel), tempoSlider])
+    ]));
+    card.appendChild(h('div.row.row-wrap', [playBtn, nowPlaying]));
+    return card;
+  }
+
+  function renderJamCard(entry, tun) {
+    var card = h('section.card');
+    card.appendChild(h('header.card-head', [h('h2', 'Practise the changes'), h('span.card-tag', 'loops')]));
+    var btn = h('button.btn.btn-primary', {
+      type: 'button',
+      onclick: function () {
+        if (backing && backing.isRunning()) {
+          backing.stop();
+          this.textContent = 'Start the band';
+          this.classList.remove('is-live');
+          return;
+        }
+        backing = GL.backing.create({
+          chords: entry.chords, beatsPerBar: 4,
+          style: /blues/.test((entry.tags || []).join(' ')) ? 'blues' : 'folk',
+          tempo: 92, tuning: tun
+        });
+        backing.start();
+        this.textContent = 'Stop';
+        this.classList.add('is-live');
+      }
+    }, 'Start the band');
+    card.appendChild(h('div.row.row-wrap', [btn]));
+    return card;
+  }
+
   /* ------------------------------------------------------------- the index */
 
   function renderIndex(root) {
@@ -571,10 +778,15 @@
 
       matches.slice(0, 120).forEach(function (e) {
         var links = GL.songIndexLinks(e);
-        results.appendChild(h('div.indexrow', [
+        var hasChart = GL.findChart && GL.findChart(e);
+        results.appendChild(h('div.indexrow' + (hasChart ? '.has-chart' : ''), [
           h('div.indexrow-main', [
-            h('strong', e.title),
-            h('span.indexrow-artist', e.artist + '  ·  ' + e.year)
+            h('button.indexrow-title', {
+              type: 'button',
+              onclick: function () { GL.app.navigate('songs', 'i=' + e.id); }
+            }, e.title),
+            h('span.indexrow-artist', e.artist + '  ·  ' + e.year +
+              (hasChart ? '  ·  full chart' : ''))
           ]),
           h('div.indexrow-meta', [
             h('span.pill', e.key),
@@ -584,6 +796,10 @@
           ]),
           h('div.indexrow-chords', e.chords.join('  ')),
           h('div.indexrow-links', [
+            h('button.btn.btn-sm' + (hasChart ? '.btn-primary' : ''), {
+              type: 'button',
+              onclick: function () { GL.app.navigate('songs', 'i=' + e.id); }
+            }, hasChart ? 'Open the chart' : 'Open'),
             h('button.btn.btn-sm', {
               type: 'button',
               onclick: function () { jamOn(e, this); }
@@ -633,6 +849,10 @@
       if (params && params.s) {
         var song = findSong(params.s);
         if (song) { renderSong(root, song); return; }
+      }
+      if (params && params.i) {
+        var entry = GL.songIndex.filter(function (e) { return e.id === params.i; })[0];
+        if (entry) { renderIndexSong(root, entry); return; }
       }
 
       root.appendChild(h('div.view-head', [

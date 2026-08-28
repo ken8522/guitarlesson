@@ -621,6 +621,13 @@ a  { color: var(--amber-hi); }
 
 .tagchips { margin-top: 12px; }
 
+.indexrow.has-chart { border-left: 2px solid var(--amber-dim); }
+.indexrow-title {
+  background: none; border: 0; padding: 0; font: inherit; font-weight: 700;
+  color: var(--ink); text-align: left; cursor: pointer;
+}
+.indexrow-title:hover { color: var(--amber-hi); text-decoration: underline; text-underline-offset: 2px; }
+
 /* ---------------------------------------------------- how to use ------- */
 
 .howto-first .howstep { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start;
