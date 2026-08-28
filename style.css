@@ -588,6 +588,74 @@ a  { color: var(--amber-hi); }
   .trackline .track-bar, .trackline-count { grid-column: 1 / -1; }
 }
 
+/* ------------------------------------------------- sing-along sheets --- */
+
+.sheet-controls { gap: 14px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.transposer { display: flex; align-items: center; gap: 8px; }
+.transposer .field-value { min-width: 92px; text-align: center; font-family: var(--mono); font-size: .8rem; }
+.speedfield { min-width: 150px; }
+.sheet-shapes { margin-bottom: 16px; }
+
+.lyricsheet { font-size: 1rem; line-height: 1.25; }
+.lyricsheet.is-big { font-size: 1.42rem; }
+.ly-section { margin-bottom: 22px; }
+.ly-name {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--amber-hi); margin: 0 0 8px;
+}
+.lyricsheet.is-big .ly-name { font-size: .82rem; }
+
+/* Each chord-plus-word is its own block so lines wrap without the chords
+   sliding off the words they belong to. */
+.ly-line { margin-bottom: 6px; }
+.ly-line.is-blank { height: .8em; }
+.ly-pair { display: inline-block; vertical-align: bottom; }
+.ly-chord {
+  display: block; height: 1.25em; line-height: 1.25em;
+  font-family: var(--mono); font-size: .78em; font-weight: 700;
+  color: var(--amber); white-space: pre;
+}
+.ly-word { display: block; color: var(--ink); white-space: pre; }
+.lyricsheet.is-nochords .ly-chord { display: none; }
+.lyricsheet.is-nochords .ly-line { margin-bottom: 3px; }
+
+.tagchips { margin-top: 12px; }
+
+/* ---------------------------------------------------- how to use ------- */
+
+.howto-first .howstep { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start;
+                        padding: 14px 0; border-top: 1px solid var(--line); }
+.howto-first .howstep:first-of-type { border-top: 0; }
+.howstep-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--amber); color: #241a08;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .9rem;
+}
+.howstep h3 { margin: 2px 0 6px; font-size: 1rem; }
+
+.howgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 14px; }
+.howcard { background: var(--bg-2); border: 1px solid var(--line-2); border-radius: var(--radius-sm); padding: 13px 15px; }
+.howcard h3 { margin: 0 0 6px; font-size: .95rem; color: var(--amber-hi); }
+.howcard .lesson-text { font-size: .85rem; margin-bottom: 10px; }
+
+.howdiagram { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: start;
+              padding: 20px 0; border-top: 1px solid var(--line); }
+.howdiagram.is-wide { grid-template-columns: minmax(0, 1fr); }
+.howdiagram h3 { color: var(--amber-hi); font-size: .95rem; margin-bottom: 8px; }
+.howdiagram .lesson-list { font-size: .87rem; }
+.howdiagram-art { display: flex; justify-content: center; }
+
+.linkbtn {
+  background: none; border: 0; padding: 0; font: inherit; cursor: pointer;
+  color: var(--amber-hi); text-decoration: underline; text-underline-offset: 2px;
+}
+
+@media (max-width: 700px) {
+  .howdiagram { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .sheet-controls { gap: 10px; }
+}
+
 /* ---------------------------------------------------------------- chrome */
 
 .audio-gate {

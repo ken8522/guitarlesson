@@ -158,11 +158,23 @@
     else location.hash = hash;
   }
 
+  /* Where an empty hash lands. First run gets the instructions; after that it
+     goes straight to the practice bench, because landing on a help page every
+     session would be irritating. "First run" means nothing has been done yet. */
+  function defaultView() {
+    var p = state.progress;
+    var touched = Object.keys(p.lessons || {}).length > 0 ||
+                  (p.practiceLog || []).length > 0 ||
+                  Object.keys(p.trainer || {}).length > 0;
+    if (!touched && views.how) return 'how';
+    return views.tools ? 'tools' : order[0];
+  }
+
   function parseHash() {
     var raw = location.hash.replace(/^#\/?/, '');
     var q = raw.indexOf('?');
     return {
-      id: (q === -1 ? raw : raw.slice(0, q)) || order[0],
+      id: (q === -1 ? raw : raw.slice(0, q)) || defaultView(),
       params: q === -1 ? '' : raw.slice(q + 1)
     };
   }
@@ -209,7 +221,7 @@
 
   function onHashChange() {
     var r = parseHash();
-    mount(views[r.id] ? r.id : order[0], r.params);
+    mount(views[r.id] ? r.id : defaultView(), r.params);
   }
 
   /* ------------------------------------------------------------------ chrome */

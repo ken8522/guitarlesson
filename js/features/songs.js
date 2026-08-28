@@ -54,6 +54,10 @@
     if (raf) cancelAnimationFrame(raf);
     raf = null;
     player = null;
+    if (scrollState && scrollState.raf) {
+      cancelAnimationFrame(scrollState.raf);
+      scrollState.raf = null;
+    }
     GL.guitar.stopAll(0.08);
   }
 
@@ -240,6 +244,11 @@
       }))
     ]));
 
+    /* Words to sing from, if this is a sing-along. */
+    if (song.lyrics && song.lyrics.length) {
+      root.appendChild(renderLyrics(song, tun));
+    }
+
     /* Form, with a backing band. */
     if (song.form && song.form.length) {
       root.appendChild(renderForm(song, tun, beatsPerBar));
@@ -250,6 +259,131 @@
       root.appendChild(renderTabPlayer(song));
     }
   }
+
+  /* The sing-along sheet. Every control here exists for someone holding a
+     guitar and looking at a screen a metre away: transpose because the key is
+     set by whoever is singing, big text because you are not leaning in, and
+     auto-scroll because you cannot spare a hand. */
+  function renderLyrics(song, tun) {
+    var opts = { transpose: 0, showChords: true, big: false };
+    var card = h('section.card.singalong');
+    var sheet = h('div.sheet');
+    var keyLabel = h('span.card-tag', 'key of ' + song.key);
+
+    function draw() {
+      sheet.innerHTML = GL.render.lyricSheet(song, opts);
+      keyLabel.textContent = 'key of ' +
+        GL.lyrics.transposeKey(song.key, opts.transpose,
+          GL.lyrics.prefersFlats(song.key, opts.transpose)) +
+        (opts.transpose ? '  (' + (opts.transpose > 0 ? '+' : '') + opts.transpose + ')' : '');
+      drawShapes();
+    }
+
+    /* Chord shapes follow the transpose, or they would be lying. */
+    var shapes = h('div.lesson-chords.sheet-shapes');
+    function drawShapes() {
+      clear(shapes);
+      var flats = GL.lyrics.prefersFlats(song.key, opts.transpose);
+      GL.lyrics.chordsUsed(song).forEach(function (sym) {
+        var moved = GL.lyrics.transposeChord(sym, opts.transpose, flats);
+        var v = GL.chords.voicings(moved, { tuning: tun, maxFret: 9, limit: 1 })[0];
+        if (!v) return;
+        shapes.appendChild(h('button.lesson-chord', {
+          type: 'button',
+          onclick: function () {
+            GL.audio.unlock();
+            GL.guitar.strum({ frets: v.frets, tuning: tun, velocity: 0.82, tone: 'steel' });
+          }
+        }, [h('div', { html: GL.render.voicingDiagram(v, { name: moved, size: 'sm' }) })]));
+      });
+    }
+
+    var transposeLabel = h('span.field-value', 'original key');
+    function shift(by) {
+      opts.transpose = Math.max(-6, Math.min(6, opts.transpose + by));
+      transposeLabel.textContent = opts.transpose === 0 ? 'original key'
+        : (opts.transpose > 0 ? '+' : '') + opts.transpose + ' semitone' +
+          (Math.abs(opts.transpose) === 1 ? '' : 's');
+      draw();
+    }
+
+    /* Auto-scroll. requestAnimationFrame rather than setInterval so the speed
+       is the same on any refresh rate, and fractional pixels accumulate
+       instead of being thrown away. */
+    var scrollBtn;
+    function toggleScroll() {
+      if (scrollState.raf) { stopScroll(); return; }
+      scrollState.last = performance.now();
+      scrollState.carry = 0;
+      scrollBtn.textContent = 'Stop scrolling';
+      scrollBtn.classList.add('is-live');
+      step();
+
+      function step() {
+        scrollState.raf = requestAnimationFrame(step);
+        var now = performance.now();
+        var dt = (now - scrollState.last) / 1000;
+        scrollState.last = now;
+        scrollState.carry += scrollState.speed * dt;
+        var whole = Math.floor(scrollState.carry);
+        if (whole >= 1) {
+          scrollState.carry -= whole;
+          var before = window.scrollY;
+          window.scrollBy(0, whole);
+          if (window.scrollY === before) stopScroll();   /* hit the bottom */
+        }
+      }
+    }
+    function stopScroll() {
+      if (scrollState.raf) cancelAnimationFrame(scrollState.raf);
+      scrollState.raf = null;
+      if (scrollBtn) { scrollBtn.textContent = 'Auto-scroll'; scrollBtn.classList.remove('is-live'); }
+    }
+    scrollBtn = h('button.btn', { type: 'button', onclick: toggleScroll }, 'Auto-scroll');
+
+    var speedLabel = h('span.field-value', '20 px/s');
+
+    card.appendChild(h('header.card-head', [h('h2', 'Words and chords'), keyLabel]));
+    card.appendChild(h('div.row.row-wrap.sheet-controls', [
+      h('div.transposer', [
+        h('button.btn.btn-icon', { type: 'button', title: 'Down a semitone', onclick: function () { shift(-1); } }, '−'),
+        transposeLabel,
+        h('button.btn.btn-icon', { type: 'button', title: 'Up a semitone', onclick: function () { shift(1); } }, '+')
+      ]),
+      h('label.check', [
+        h('input', {
+          type: 'checkbox', checked: true,
+          onchange: function () { opts.showChords = this.checked; draw(); }
+        }),
+        h('span', 'Show chords')
+      ]),
+      h('label.check', [
+        h('input', {
+          type: 'checkbox',
+          onchange: function () { opts.big = this.checked; draw(); }
+        }),
+        h('span', 'Big text')
+      ]),
+      scrollBtn,
+      h('label.field.speedfield', [h('span', speedLabel), h('input.slider', {
+        type: 'range', min: 5, max: 90, step: 5, value: 20,
+        oninput: function () {
+          scrollState.speed = Number(this.value);
+          speedLabel.textContent = this.value + ' px/s';
+        }
+      })])
+    ]));
+    card.appendChild(shapes);
+    card.appendChild(sheet);
+    card.appendChild(h('p.hint',
+      'The chord sits above the word where you change to it. Transpose until it ' +
+      'suits whoever is singing — the shapes above change with it.'));
+
+    draw();
+    return card;
+  }
+
+  var scrollState = { raf: null, speed: 20, last: 0, carry: 0 };
 
   function renderForm(song, tun, beatsPerBar) {
     var card = h('section.card');
@@ -388,6 +522,23 @@
     var results = h('div.indexlist');
     var count = h('span.hint');
 
+    var TAGS = ['singalong', 'campfire', 'pub', 'blues', 'folk', 'jazz', 'country', 'fingerstyle'];
+    var chips = h('div.row.row-wrap.tagchips', [h('span.field-label', 'Quick filters')].concat(
+      TAGS.map(function (t) {
+        return h('button.btn.btn-chip', {
+          type: 'button',
+          dataset: { tag: t },
+          onclick: function () {
+            ui.idxTag = (ui.idxTag === t) ? '' : t;
+            GL.app.$$('.tagchips .btn-chip').forEach(function (b) {
+              b.classList.toggle('is-on', b.dataset.tag === ui.idxTag);
+            });
+            refresh();
+          }
+        }, t);
+      })
+    ));
+
     root.appendChild(h('section.card', [
       h('div.grid.grid-2', [
         h('label.field', [h('span', 'Search'), h('input.input', {
@@ -400,6 +551,7 @@
           oninput: function () { ui.idxChord = this.value.trim(); refresh(); }
         })])
       ]),
+      chips,
       count
     ]));
     root.appendChild(results);
@@ -410,6 +562,7 @@
       var chord = ui.idxChord;
       var matches = GL.songIndex.filter(function (e) {
         if (chord && e.chords.indexOf(chord) === -1) return false;
+        if (ui.idxTag && (e.tags || []).indexOf(ui.idxTag) === -1) return false;
         if (!q) return true;
         return (e.title + ' ' + e.artist + ' ' + e.key + ' ' + (e.tags || []).join(' '))
           .toLowerCase().indexOf(q) !== -1;

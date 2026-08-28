@@ -19,11 +19,12 @@ counts while `file://` does not.
 
 | | |
 |---|---|
+| **How to use** | Plain-English instructions, with live examples of every kind of diagram. First run opens here |
 | **Course** | 50 lessons across six tracks, with drills wired to the metronome and per-lesson progress |
 | **Chords** | 36 chord qualities, every playable voicing up the neck, CAGED forms, and what each chord does in a key |
 | **Scales** | 50 scales and modes, CAGED boxes and three-notes-per-string, played over a root drone |
 | **Trainer** | Name the note, find the note, find the interval — answered on the neck |
-| **Songs** | 50 public-domain songs with chords, backing band and playable tab; 249 well-known songs indexed for reference |
+| **Songs** | 90 public-domain songs with chords, backing band and playable tab — including 40 sing-alongs with the full words on screen; plus 299 well-known songs indexed for reference |
 | **Jam** | 61 progressions in any of 12 keys, 12 backing styles, drums + bass + comping guitar |
 | **Ear** | Intervals, chord qualities and progressions by ear |
 | **Theory** | Interactive circle of fifths, diatonic harmony, borrowed chords |
@@ -41,16 +42,43 @@ counts while `file://` does not.
 
 ## The song library, and copyright
 
-Songs with **full playable tab and chords** in this app are public domain only:
-traditional folk, pre-1930 blues, bluegrass and fiddle tunes, Celtic, spirituals,
-carols, and classical guitar repertoire. That is not a consolation prize — it is
-most of what a folk, blues and fingerstyle player actually plays.
+US copyright runs 95 years, so **anything published in 1930 or earlier is public
+domain in 2026**. That single line decides what can appear in this app.
+
+Songs with **full chords, tab and — for the sing-alongs — the complete lyrics**
+are public domain only: traditional folk, pre-1930 blues, bluegrass and fiddle
+tunes, Celtic, spirituals, carols, sea shanties, campfire songs and classical
+guitar repertoire. That is not a consolation prize — it is most of what a folk,
+blues and fingerstyle player actually plays, and very nearly all of what a group
+of people actually sings together.
 
 Songs still in copyright appear in a separate **index** carrying only factual
 metadata: artist, year, key, capo, difficulty, chords used, and the shape of the
 progression. Each links out to a licensed chart site, and one click builds a
 backing track from the progression so the changes can be practised. No lyrics
 and no transcriptions of copyrighted material appear anywhere in this app.
+
+**A warning if you add songs.** Published campfire song lists routinely file
+copyrighted songs under "traditional". One widely-cited list of 98 campfire
+classics has *You Are My Sunshine* (1939, protected until 2035), *Kookaburra*
+(1934, the subject of a well-known infringement case) and *Edelweiss* (1959,
+Rodgers & Hammerstein) all under that heading. Check the publication year, never
+the label. Every song in `songs-singalong.js` carries a `published` field and the
+verification pass asserts it is 1930 or earlier.
+
+## Sing-along sheets
+
+Lyrics are stored in ChordPro form — `[G]Row, row, row your [C]boat` — where the
+chord sounds on the syllable straight after it. `js/render/lyrics.js` renders
+each chord-and-word pair as its own inline block so lines wrap on a phone
+without the chords sliding off the words they belong to.
+
+Each sheet has a **transpose** control (−6 to +6) that rewrites every chord and
+the key label through the chord engine rather than by editing strings, so
+`Bbm7b5` moves as cleanly as `G` — and the chord diagrams above the sheet follow
+it. There is also a **big text** mode for reading at arm's length, a **chords
+on/off** toggle, and **auto-scroll** with a speed control, so you do not have to
+take a hand off the neck.
 
 ## Notes on the design
 
