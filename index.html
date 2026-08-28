@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fretwork - acoustic guitar, properly taught</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d0b09'/%3E%3Cg stroke='%23e0a340' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M8 7v18M13 7v18M19 7v18M24 7v18'/%3E%3C/g%3E%3Cg stroke='%23efe7dc' stroke-width='1.2' opacity='.55'%3E%3Cpath d='M5 12h22M5 20h22'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -23,8 +23,8 @@
     </div>
     <nav id="nav" class="nav" aria-label="Sections"></nav>
     <div class="sidebar-foot">
-      <span class="phase-badge">Phase 2</span>
-      <span class="phase-note">libraries</span>
+      <span class="phase-badge">v1.0</span>
+      <span class="phase-note">no samples, no network</span>
     </div>
   </aside>
 
@@ -34,15 +34,18 @@
 
 <div id="toasts" class="toasts" aria-live="polite"></div>
 
-<!-- Theory engines. chords.js must load before scales.js: the diatonic
-     harmoniser builds its reverse lookup from the chord quality table. -->
+<!-- Theory engines. Load order matters twice: scales.js builds a reverse lookup
+     from the chord quality table at load, and progressions.js uses both. -->
 <script src="js/theory/notes.js"></script>
 <script src="js/theory/chords.js"></script>
 <script src="js/theory/scales.js"></script>
+<script src="js/theory/progressions.js"></script>
 
 <!-- Audio core. -->
 <script src="js/core/audio.js"></script>
 <script src="js/core/synth-guitar.js"></script>
+<script src="js/core/synth-drums.js"></script>
+<script src="js/core/backing.js"></script>
 <script src="js/core/metronome.js"></script>
 <script src="js/core/pitch.js"></script>
 
@@ -51,31 +54,37 @@
 <script src="js/render/fretboard.js"></script>
 <script src="js/render/tab.js"></script>
 
+<!-- Content. Data only; the views render it. -->
+<script src="js/data/lessons-barre.js"></script>
+<script src="js/data/lessons-fingerstyle.js"></script>
+<script src="js/data/lessons-fretboard.js"></script>
+<script src="js/data/lessons-rhythm.js"></script>
+<script src="js/data/lessons-theory.js"></script>
+<script src="js/data/lessons-tunings.js"></script>
+<script src="js/data/songs-folk.js"></script>
+<script src="js/data/songs-blues.js"></script>
+<script src="js/data/songs-celtic.js"></script>
+<script src="js/data/songs-classical.js"></script>
+<script src="js/data/songs-carols.js"></script>
+<script src="js/data/songs-bluegrass.js"></script>
+<script src="js/data/song-index.js"></script>
+
 <!-- Shell, then features. -->
 <script src="js/app.js"></script>
 <script src="js/features/tools.js"></script>
+<script src="js/features/course.js"></script>
 <script src="js/features/chordlib.js"></script>
 <script src="js/features/scalelib.js"></script>
 <script src="js/features/fretboard-trainer.js"></script>
+<script src="js/features/songs.js"></script>
+<script src="js/features/jam.js"></script>
+<script src="js/features/ear.js"></script>
+<script src="js/features/theory.js"></script>
+<script src="js/features/progress.js"></script>
 
 <script>
 (function (GL) {
   'use strict';
-  /* Phases 3-6 land here. The nav lists them now so the shape of the app is
-     honest about what is coming rather than hiding it. */
-  GL.app.stub('course', 'Course', '&#9834;',
-    'Fifty lessons across barre chords, fingerstyle, fretboard and improvisation, rhythm, theory and alternate tunings.', 3);
-  GL.app.stub('songs', 'Songs', '&#9836;',
-    'A public-domain repertoire with playable tab, and an index of well-known songs to practise the changes of.', 4);
-  GL.app.stub('jam', 'Jam', '&#9835;',
-    'Backing tracks generated from any progression, in any key, at any tempo.', 5);
-  GL.app.stub('ear', 'Ear', '&#9834;',
-    'Intervals, chord qualities and progressions, by ear.', 5);
-  GL.app.stub('theory', 'Theory', '&#9837;',
-    'Circle of fifths, diatonic harmony, and how progressions actually work.', 3);
-  GL.app.stub('progress', 'Progress', '&#9633;',
-    'Practice log, streaks, and what you have covered.', 6);
-
   GL.app.setNavOrder([
     'tools', 'course', 'chords', 'scales', 'trainer',
     'songs', 'jam', 'ear', 'theory', 'progress'

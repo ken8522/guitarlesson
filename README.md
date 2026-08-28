@@ -11,71 +11,84 @@ python serve.py
 
 Then open <http://localhost:8627>.
 
-`index.html` will also open directly from the filesystem, but the tuner will
+`index.html` will also open straight from the filesystem, but the tuner will
 not: browsers only hand out a microphone on a secure origin, and `localhost`
 counts while `file://` does not.
 
-## What is here so far
+## What is in it
 
-**Phase 1 (done) — engine and tools**
-
-| File | What it does |
+| | |
 |---|---|
-| `js/theory/notes.js` | Pitch, interval and key arithmetic. Proper scale spelling (F# major comes out with an E#, not an F). Eleven tunings. |
-| `js/theory/chords.js` | 36 chord qualities. Given any symbol it searches the whole fretboard for playable voicings, works out the fingering including barres, and ranks them. Tuning-agnostic. |
-| `js/theory/scales.js` | 46 scales and modes, mapped onto the neck, sliced into CAGED boxes or three-notes-per-string shapes, plus diatonic harmony with roman numerals. |
-| `js/core/audio.js` | The single AudioContext, the mix bus with modelled body resonance, a synthesised reverb, and the beat clock everything schedules against. |
-| `js/core/synth-guitar.js` | A Karplus-Strong steel-string. Pick position, per-pitch decay, string choking, five right-hand tones, strums, slides and hammer-ons. |
-| `js/core/metronome.js` | Subdivisions, accent patterns, 2-and-4-only, swing, and a tempo ramp. |
-| `js/core/pitch.js` | Microphone pitch detection (McLeod NSDF), accurate to under half a cent across the guitar's range. |
-| `js/render/*.js` | Chord boxes, full-neck diagrams, and tab notation, all as themed SVG. |
-| `js/features/tools.js` | The practice bench: tuner, metronome, sound check. |
+| **Course** | 50 lessons across six tracks, with drills wired to the metronome and per-lesson progress |
+| **Chords** | 36 chord qualities, every playable voicing up the neck, CAGED forms, and what each chord does in a key |
+| **Scales** | 50 scales and modes, CAGED boxes and three-notes-per-string, played over a root drone |
+| **Trainer** | Name the note, find the note, find the interval — answered on the neck |
+| **Songs** | 50 public-domain songs with chords, backing band and playable tab; 249 well-known songs indexed for reference |
+| **Jam** | 61 progressions in any of 12 keys, 12 backing styles, drums + bass + comping guitar |
+| **Ear** | Intervals, chord qualities and progressions by ear |
+| **Theory** | Interactive circle of fifths, diatonic harmony, borrowed chords |
+| **Progress** | Practice routine with a timer, session log, streaks, per-track progress |
+| **Practice bench** | Microphone tuner in 11 tunings, and a metronome with subdivisions, swing and a tempo ramp |
 
-**Phase 2 (done) — the libraries**
+## The six course tracks
 
-| File | What it does |
-|---|---|
-| `js/features/chordlib.js` | Chord explorer. Every playable voicing up the neck with its CAGED form, the chord's notes on the full fretboard, which keys it is diatonic to and what its function is there, and where to go next. |
-| `js/features/scalelib.js` | Scale explorer. Whole neck, CAGED boxes or three-notes-per-string, played back over a root drone, with the diatonic chords the scale harmonises into. |
-| `js/features/fretboard-trainer.js` | Three drills: name the note, find the note, find the interval. The last one is answered by clicking the neck, and is the one that makes CAGED usable. |
-
-**Phases 3–6 (to come)** — ~50 lessons, the song library and tab player, jam
-tracks and ear training, practice logging. The nav lists them now so the shape
-of the app is honest about what is coming.
+- **A — Barre chords and chord mastery** (8): the whole neck from two shapes, CAGED, triads and inversions, slash chords and walking bass, colour chords, substitution.
+- **B — Fingerstyle** (10): PIMA and planting, alternating bass, Travis picking, pattern picking, Piedmont blues, twelve-bar fingerstyle, percussion, chord melody, an arranging project.
+- **C — Fretboard and improvisation** (10): mapping the neck, the five positions, pentatonics and the joins, blue notes, modes, chord tones, arpeggios, phrasing, blues soloing, modal vamps.
+- **D — Rhythm and groove** (8): the sixteenth grid, boom-chick, bass runs, shuffle and swing, compound time, odd meters, dynamics, metronome discipline.
+- **E — Theory and ear** (8): intervals, keys and transposing, harmonising scales, hearing progressions, borrowed chords, cadences and voice leading, reharmonisation, transcribing.
+- **F — Alternate tunings** (6): drop D, DADGAD, open G, open D, the wider family, and writing in an open tuning.
 
 ## The song library, and copyright
 
-Songs with **full playable tab** in this app are public domain only: traditional
-folk, pre-1930 blues, bluegrass and fiddle tunes, Celtic, spirituals, ragtime,
+Songs with **full playable tab and chords** in this app are public domain only:
+traditional folk, pre-1930 blues, bluegrass and fiddle tunes, Celtic, spirituals,
 carols, and classical guitar repertoire. That is not a consolation prize — it is
 most of what a folk, blues and fingerstyle player actually plays.
 
-Songs still in copyright appear in a separate **index**, carrying only factual
+Songs still in copyright appear in a separate **index** carrying only factual
 metadata: artist, year, key, capo, difficulty, chords used, and the shape of the
-progression. Each links out to a licensed chart site, and can generate a backing
-track from its progression so you can practise the changes. No lyrics and no
-transcriptions of copyrighted material are reproduced anywhere in this app.
+progression. Each links out to a licensed chart site, and one click builds a
+backing track from the progression so the changes can be practised. No lyrics
+and no transcriptions of copyrighted material appear anywhere in this app.
 
 ## Notes on the design
 
-**Nothing is a stored diagram.** Chords, scales, modes and neck maps are all
-computed. That is why the scale library covers 46 scales in 12 keys in 11
-tunings, and why the alternate-tunings material needs no special cases — the
-same voicing search that answers "F barre chord" answers "Cadd9 in DADGAD".
+**Nothing is a stored diagram.** Chords, scales, modes, neck maps and
+progressions are all computed. That is why the scale library covers 50 scales in
+12 keys in 11 tunings, why the progression library covers 61 progressions in
+every key from one stored entry each, and why the alternate-tunings track needs
+no special cases — the same voicing search that answers "F barre chord" answers
+"Cadd9 in DADGAD".
 
 The one deliberate exception is a short list of canonical open-position shapes
 in `chords.js`. The search finds those on its own, but it also finds forty
 near-misses that score within a point, and "the shape you were taught" is a fact
-about guitarists rather than about music. It is a tie-breaker only; every other
-voicing is still returned.
+about guitarists rather than about music. It is a tie-breaker only.
 
-**The guitar sound is synthesised, not sampled.** A noise burst is fed into a
-delay line one period long and filtered slightly on each pass, which is close to
-what a real string does — the tone starts bright and mellows as it rings.
+**Every sound is synthesised.** The guitar is a Karplus-Strong plucked-string
+model with pick position, per-pitch decay and string choking. The drums are
+oscillators and filtered noise. The reverb impulse is generated at startup.
+Tuning accuracy across the whole neck is under a tenth of a cent.
+
+## Layout
+
+```
+index.html            single page; script order matters (see comments)
+style.css             dark studio theme
+serve.py              threaded static server, port 8627
+js/theory/            notes, chords, scales, progressions
+js/core/              audio bus and clock, guitar, drums, backing band,
+                      metronome, microphone pitch detection
+js/render/            chord boxes, fretboards, tab notation -- all SVG
+js/data/              lessons-*.js, songs-*.js, song-index.js
+js/features/          one file per view
+js/app.js             shell, router, saved state
+```
 
 ## Tab format
 
-Songs are written as short strings rather than note objects:
+Songs and lesson examples are written as short strings rather than note objects:
 
 ```
 "6-3:1, 4-0+3-0:1, 2-1:0.5 2-3:0.5, 1-0h2:1"
@@ -91,8 +104,11 @@ notes on string 2; then string 1 open hammered to the 2nd fret.
 - `r` rest, `x` dead note, `~` let ring
 - Commas and spaces both separate events; the difference is only for readability
 
+Bars in compound and odd meters are written in the pulse you count, so a 6/8 bar
+is six beats and a 7/8 bar is seven. Set the metronome to match.
+
 ## State
 
-Everything is kept in `localStorage` under `fretwork.v1` and merged forward, so
-a save file written by an earlier phase keeps working after a later one adds
+Everything is kept in `localStorage` under `fretwork.v1` and merged forward, so a
+save file written by an earlier version keeps working after a later one adds
 fields. Clearing site data resets the app.

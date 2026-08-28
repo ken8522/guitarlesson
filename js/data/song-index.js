@@ -1,0 +1,312 @@
+/* song-index.js -- an index of well-known songs still in copyright.
+
+   IMPORTANT, and the reason this file looks the way it does: no lyrics and no
+   transcriptions appear here, because those are protected. What is here is
+   factual reference data -- what key a song is usually played in, what capo
+   people use, which chords it needs, and the shape of its progression. That is
+   the same class of information a library catalogue holds.
+
+   For the actual chart, each entry links out to a licensed site. For practice,
+   the app can build a backing track from the progression so you can work on the
+   changes without needing anyone's transcription.
+
+   Rows are tuples to keep the file readable at this length:
+     [ title, artist, year, key, capo, difficulty, chords, progression, tags ]
+
+     key          the key the common guitar arrangement sits in
+     capo         fret, 0 for none
+     difficulty   1 (three open chords) to 5 (genuinely hard)
+     chords       the chords the song needs, in the shapes people play
+     progression  the roman-numeral shape of the main section, where it has a
+                  simple one; '' where it does not
+*/
+(function (GL) {
+  'use strict';
+
+  var ROWS = [
+    /* --- the four-chord songbook: I-V-vi-IV and its rotations --- */
+    ['Let It Be', 'The Beatles', 1970, 'C', 0, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['pop', 'piano-to-guitar']],
+    ['Don\'t Stop Believin\'', 'Journey', 1981, 'E', 0, 3, ['E', 'B', 'C#m', 'A'], 'I-V-vi-IV', ['rock']],
+    ['With or Without You', 'U2', 1987, 'D', 0, 2, ['D', 'A', 'Bm', 'G'], 'I-V-vi-IV', ['rock', 'arpeggio']],
+    ['Someone Like You', 'Adele', 2011, 'A', 0, 3, ['A', 'E', 'F#m', 'D'], 'I-V-vi-IV', ['pop', 'arpeggio']],
+    ['No Woman No Cry', 'Bob Marley', 1974, 'C', 0, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['reggae']],
+    ['Take Me Home, Country Roads', 'John Denver', 1971, 'A', 2, 2, ['A', 'F#m', 'E', 'D'], 'I-vi-V-IV', ['folk', 'country']],
+    ['Hey Soul Sister', 'Train', 2009, 'E', 0, 2, ['E', 'B', 'C#m', 'A'], 'I-V-vi-IV', ['pop']],
+    ['I\'m Yours', 'Jason Mraz', 2008, 'B', 4, 2, ['G', 'D', 'Em', 'C'], 'I-V-vi-IV', ['pop', 'reggae feel']],
+    ['She Will Be Loved', 'Maroon 5', 2002, 'C', 2, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['pop']],
+    ['Poker Face', 'Lady Gaga', 2008, 'G#m', 0, 3, ['G#m', 'B', 'D#m', 'F#'], 'i-III-v-VII', ['pop']],
+    ['Africa', 'Toto', 1982, 'B', 0, 4, ['B', 'F#', 'G#m', 'E'], 'I-V-vi-IV', ['rock', 'pop']],
+    ['Wherever You Will Go', 'The Calling', 2001, 'D', 0, 2, ['D', 'A', 'Bm', 'G'], 'I-V-vi-IV', ['rock']],
+    ['Torn', 'Natalie Imbruglia', 1997, 'F', 1, 3, ['F', 'C', 'Dm', 'Bb'], 'I-V-vi-IV', ['pop']],
+    ['Save Tonight', 'Eagle-Eye Cherry', 1997, 'Am', 0, 1, ['Am', 'F', 'C', 'G'], 'vi-IV-I-V', ['pop']],
+    ['Hey There Delilah', 'Plain White T\'s', 2005, 'D', 0, 2, ['D', 'F#m', 'Bm', 'G', 'A'], 'I-iii', ['pop', 'fingerstyle']],
+
+    /* --- folk and singer-songwriter --- */
+    ['Blowin\' in the Wind', 'Bob Dylan', 1963, 'G', 0, 1, ['G', 'C', 'D', 'Am'], 'I-IV-I-V', ['folk']],
+    ['The Times They Are A-Changin\'', 'Bob Dylan', 1964, 'G', 0, 2, ['G', 'Em', 'C', 'D', 'Am'], 'I-vi-IV-V', ['folk', '3/4']],
+    ['Don\'t Think Twice, It\'s All Right', 'Bob Dylan', 1963, 'C', 4, 3, ['C', 'G', 'Am', 'F', 'E7', 'D7'], '', ['folk', 'travis picking']],
+    ['Mr. Tambourine Man', 'Bob Dylan', 1965, 'D', 0, 2, ['D', 'G', 'A', 'Bm'], 'I-IV-V', ['folk']],
+    ['The Sound of Silence', 'Simon & Garfunkel', 1964, 'Am', 6, 2, ['Am', 'G', 'C', 'F'], 'i-VII-III', ['folk', 'fingerstyle']],
+    ['The Boxer', 'Simon & Garfunkel', 1969, 'C', 2, 3, ['C', 'Am', 'G', 'F', 'Em'], '', ['folk', 'fingerstyle']],
+    ['Anji', 'Davey Graham', 1962, 'Am', 0, 5, ['Am', 'G', 'F', 'E'], 'i-VII-VI-V', ['folk', 'fingerstyle', 'instrumental']],
+    ['Angie', 'Bert Jansch', 1965, 'Am', 0, 5, ['Am', 'G', 'F', 'E7'], 'i-VII-VI-V', ['folk', 'fingerstyle']],
+    ['Blackbird', 'The Beatles', 1968, 'G', 0, 4, ['G', 'Am7', 'C', 'D'], '', ['folk', 'fingerstyle']],
+    ['Fire and Rain', 'James Taylor', 1970, 'A', 0, 4, ['A', 'E', 'F#m', 'D', 'G'], '', ['folk', 'fingerstyle']],
+    ['Something in the Way She Moves', 'James Taylor', 1968, 'D', 0, 4, ['D', 'G', 'A', 'Bm'], '', ['folk', 'fingerstyle']],
+    ['Landslide', 'Fleetwood Mac', 1975, 'Eb', 3, 3, ['C', 'G', 'Am7', 'D'], '', ['folk', 'fingerstyle']],
+    ['Big Yellow Taxi', 'Joni Mitchell', 1970, 'E', 2, 2, ['A', 'D', 'E'], 'I-IV-V', ['folk', 'open tuning']],
+    ['Both Sides Now', 'Joni Mitchell', 1969, 'D', 0, 3, ['D', 'G', 'A', 'Bm'], '', ['folk']],
+    ['A Case of You', 'Joni Mitchell', 1971, 'C', 0, 5, ['C', 'G', 'Am', 'F'], '', ['folk', 'open tuning']],
+    ['Heart of Gold', 'Neil Young', 1972, 'Em', 0, 2, ['Em', 'D', 'G', 'C', 'Am'], 'i-VII-III', ['folk', 'country']],
+    ['The Needle and the Damage Done', 'Neil Young', 1972, 'D', 0, 4, ['D', 'C', 'G', 'Am'], '', ['folk', 'travis picking']],
+    ['Old Man', 'Neil Young', 1972, 'D', 0, 3, ['D', 'F', 'C', 'G', 'Am', 'Em'], '', ['folk', 'double drop D']],
+    ['Have You Ever Seen the Rain', 'Creedence Clearwater Revival', 1970, 'C', 0, 2, ['C', 'Am', 'F', 'G'], 'I-vi-IV-V', ['rock', 'country']],
+    ['Bad Moon Rising', 'Creedence Clearwater Revival', 1969, 'D', 0, 1, ['D', 'A', 'G'], 'I-V-IV-I', ['rock']],
+    ['Sweet Baby James', 'James Taylor', 1970, 'D', 0, 3, ['D', 'A', 'Bm', 'G', 'F#m'], '', ['folk', '3/4']],
+    ['Puff, the Magic Dragon', 'Peter, Paul and Mary', 1963, 'C', 0, 2, ['C', 'Em', 'F', 'G', 'Am', 'Dm'], '', ['folk']],
+    ['Blowin\' Smoke', 'Kacey Musgraves', 2013, 'G', 0, 2, ['G', 'C', 'D', 'Em'], '', ['country']],
+    ['The Night They Drove Old Dixie Down', 'The Band', 1969, 'C', 0, 3, ['C', 'Am', 'F', 'G', 'Dm'], '', ['folk rock']],
+    ['The Weight', 'The Band', 1968, 'A', 0, 3, ['A', 'C#m', 'D', 'E', 'F#m'], '', ['folk rock']],
+
+    /* --- classic rock --- */
+    ['Wish You Were Here', 'Pink Floyd', 1975, 'G', 0, 3, ['G', 'Em7', 'A7sus4', 'C', 'D', 'Am'], '', ['rock', 'acoustic']],
+    ['Wonderwall', 'Oasis', 1995, 'F#m', 2, 2, ['Em7', 'G', 'Dsus4', 'A7sus4', 'Cadd9'], '', ['britpop', 'strumming']],
+    ['Don\'t Look Back in Anger', 'Oasis', 1996, 'C', 0, 3, ['C', 'G', 'Am', 'E7', 'F'], '', ['britpop']],
+    ['Champagne Supernova', 'Oasis', 1995, 'A', 0, 3, ['A', 'G', 'F#m', 'E'], '', ['britpop']],
+    ['Knockin\' on Heaven\'s Door', 'Bob Dylan', 1973, 'G', 0, 1, ['G', 'D', 'Am', 'C'], 'I-V-ii / I-V-IV', ['rock', 'folk']],
+    ['Free Fallin\'', 'Tom Petty', 1989, 'F', 1, 1, ['E', 'A', 'B'], 'I-IV-I-V', ['rock']],
+    ['Learning to Fly', 'Tom Petty', 1991, 'F', 1, 2, ['E', 'A', 'B', 'C#m'], 'I-IV-vi-V', ['rock']],
+    ['Horse with No Name', 'America', 1971, 'Em', 0, 1, ['Em', 'D6/9'], 'i-II', ['rock', 'two chords']],
+    ['Space Oddity', 'David Bowie', 1969, 'C', 0, 4, ['C', 'Em', 'Am', 'F', 'G', 'Bb'], '', ['rock']],
+    ['Behind Blue Eyes', 'The Who', 1971, 'Em', 0, 3, ['Em', 'G', 'D', 'C', 'Am'], '', ['rock', 'acoustic']],
+    ['Patience', 'Guns N\' Roses', 1988, 'C', 0, 3, ['C', 'G', 'Am', 'D', 'F'], '', ['rock', 'acoustic']],
+    ['More Than Words', 'Extreme', 1990, 'G', 0, 4, ['G', 'Cadd9', 'Am7', 'D', 'Em'], '', ['rock', 'fingerstyle']],
+    ['Every Rose Has Its Thorn', 'Poison', 1988, 'G', 0, 2, ['G', 'C', 'D', 'Em'], 'I-IV-V', ['rock', 'acoustic']],
+    ['Dust in the Wind', 'Kansas', 1977, 'C', 0, 4, ['C', 'Am', 'G', 'D'], '', ['rock', 'travis picking']],
+    ['Tears in Heaven', 'Eric Clapton', 1992, 'A', 0, 4, ['A', 'E', 'F#m', 'D', 'Bm'], '', ['acoustic', 'fingerstyle']],
+    ['Layla (unplugged)', 'Eric Clapton', 1992, 'D', 0, 4, ['D', 'A', 'Bm', 'G', 'F#m'], '', ['blues', 'acoustic']],
+    ['Blackbird (live)', 'Crosby, Stills & Nash', 1969, 'G', 0, 4, ['G', 'C', 'Am7'], '', ['folk rock']],
+    ['Helplessly Hoping', 'Crosby, Stills & Nash', 1969, 'A', 0, 3, ['A', 'D', 'E', 'F#m'], '', ['folk rock', 'fingerstyle']],
+    ['Suite: Judy Blue Eyes', 'Crosby, Stills & Nash', 1969, 'E', 0, 5, ['E', 'A', 'D', 'G'], '', ['folk rock', 'open tuning']],
+    ['Southern Cross', 'Crosby, Stills & Nash', 1982, 'A', 0, 3, ['A', 'E', 'F#m', 'D'], 'I-V-vi-IV', ['rock']],
+    ['Hotel California', 'Eagles', 1976, 'Bm', 2, 4, ['Bm', 'F#', 'A', 'E', 'G', 'D', 'Em'], 'i-V-VII-IV', ['rock']],
+    ['Take It Easy', 'Eagles', 1972, 'G', 0, 2, ['G', 'C', 'D', 'Em', 'Am'], 'I-V-IV', ['rock', 'country']],
+    ['Peaceful Easy Feeling', 'Eagles', 1972, 'E', 0, 2, ['E', 'A', 'B7', 'C#m'], 'I-IV-V', ['country rock']],
+    ['Stairway to Heaven', 'Led Zeppelin', 1971, 'Am', 0, 5, ['Am', 'C', 'D', 'F', 'G', 'Dsus4'], '', ['rock', 'fingerstyle']],
+    ['Going to California', 'Led Zeppelin', 1971, 'D', 0, 4, ['D', 'G', 'Am', 'C'], '', ['folk rock', 'open tuning']],
+    ['Babe I\'m Gonna Leave You', 'Led Zeppelin', 1969, 'Am', 0, 4, ['Am', 'G', 'F', 'E7', 'C'], '', ['folk rock']],
+    ['Sweet Home Alabama', 'Lynyrd Skynyrd', 1974, 'G', 0, 2, ['D', 'C', 'G'], 'V-IV-I', ['southern rock']],
+    ['Simple Man', 'Lynyrd Skynyrd', 1973, 'C', 0, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi', ['southern rock']],
+    ['Brown Eyed Girl', 'Van Morrison', 1967, 'G', 0, 2, ['G', 'C', 'D', 'Em'], 'I-IV-I-V', ['rock', 'pop']],
+    ['Into the Mystic', 'Van Morrison', 1970, 'C', 0, 3, ['C', 'F', 'G', 'Am'], '', ['rock', 'soul']],
+    ['Ripple', 'Grateful Dead', 1970, 'G', 0, 3, ['G', 'C', 'D', 'Am', 'Em'], '', ['folk rock']],
+    ['Friend of the Devil', 'Grateful Dead', 1970, 'G', 0, 3, ['G', 'D', 'Am', 'E7', 'A7'], '', ['folk rock', 'bluegrass']],
+    ['Box of Rain', 'Grateful Dead', 1970, 'D', 0, 3, ['D', 'A', 'G', 'Bm', 'Em'], '', ['folk rock']],
+    ['Redemption Song', 'Bob Marley', 1980, 'G', 0, 2, ['G', 'Em', 'C', 'D', 'Am'], 'I-vi-IV-V', ['reggae', 'acoustic']],
+    ['Three Little Birds', 'Bob Marley', 1977, 'A', 0, 1, ['A', 'D', 'E'], 'I-IV-V', ['reggae']],
+    ['Wild World', 'Cat Stevens', 1970, 'Am', 0, 3, ['Am', 'D7', 'G', 'C', 'F', 'E7'], '', ['folk']],
+    ['Father and Son', 'Cat Stevens', 1970, 'G', 0, 3, ['G', 'C', 'D', 'Em', 'Am'], '', ['folk']],
+    ['The First Cut Is the Deepest', 'Cat Stevens', 1967, 'D', 0, 2, ['D', 'G', 'A', 'Bm'], 'I-IV-V', ['folk pop']],
+
+    /* --- indie, alt and modern acoustic --- */
+    ['Ho Hey', 'The Lumineers', 2012, 'C', 0, 1, ['C', 'F', 'Am', 'G'], 'I-IV-vi-V', ['indie folk']],
+    ['Skinny Love', 'Bon Iver', 2007, 'Am', 0, 3, ['Am', 'C', 'F', 'G'], 'i-III-VI-VII', ['indie folk', 'open tuning']],
+    ['Little Talks', 'Of Monsters and Men', 2011, 'Am', 0, 2, ['Am', 'F', 'C', 'G'], 'vi-IV-I-V', ['indie folk']],
+    ['The Cave', 'Mumford & Sons', 2009, 'Am', 0, 3, ['Am', 'C', 'G', 'F'], '', ['indie folk']],
+    ['I Will Wait', 'Mumford & Sons', 2012, 'C', 0, 3, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['indie folk']],
+    ['Riptide', 'Vance Joy', 2013, 'C', 1, 2, ['Am', 'G', 'C', 'F'], 'vi-V-I-IV', ['indie pop', 'ukulele-ish']],
+    ['Banana Pancakes', 'Jack Johnson', 2005, 'G', 0, 3, ['G', 'C', 'D', 'Em', 'A7'], '', ['acoustic', 'reggae feel']],
+    ['Better Together', 'Jack Johnson', 2005, 'F', 0, 3, ['F', 'Bb', 'C', 'Dm', 'Gm'], '', ['acoustic']],
+    ['Budapest', 'George Ezra', 2013, 'F', 3, 2, ['D', 'G', 'A'], 'I-IV-V', ['pop', 'folk']],
+    ['Let Her Go', 'Passenger', 2012, 'C', 7, 3, ['C', 'G', 'Am', 'F', 'Em'], '', ['acoustic']],
+    ['Thinking Out Loud', 'Ed Sheeran', 2014, 'D', 0, 3, ['D', 'G', 'A', 'Em', 'Bm'], 'I-IV-V', ['pop', 'soul']],
+    ['The A Team', 'Ed Sheeran', 2011, 'A', 2, 3, ['G', 'Cadd9', 'Em', 'D'], '', ['acoustic', 'fingerstyle']],
+    ['Photograph', 'Ed Sheeran', 2014, 'E', 4, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['pop']],
+    ['Perfect', 'Ed Sheeran', 2017, 'Ab', 1, 3, ['G', 'Em', 'C', 'D'], 'I-vi-IV-V', ['pop', '6/8']],
+    ['Iris', 'Goo Goo Dolls', 1998, 'D', 0, 4, ['D', 'Em', 'G', 'A', 'Bm'], '', ['rock', 'alternate tuning']],
+    ['Wonderwall (acoustic)', 'Ryan Adams', 2004, 'Em', 0, 3, ['Em', 'G', 'D', 'A7sus4', 'Cadd9'], '', ['indie']],
+    ['Fast Car', 'Tracy Chapman', 1988, 'C', 2, 3, ['C', 'G', 'Em', 'D'], 'I-V-iii-II', ['folk', 'fingerstyle']],
+    ['Give Me One Reason', 'Tracy Chapman', 1995, 'F#', 0, 3, ['F#7', 'B7', 'C#7'], 'I7-IV7-V7', ['blues']],
+    ['Zombie', 'The Cranberries', 1994, 'Em', 0, 2, ['Em', 'C', 'G', 'D'], 'i-VI-III-VII', ['rock']],
+    ['Losing My Religion', 'R.E.M.', 1991, 'Am', 0, 3, ['Am', 'Em', 'Dm', 'G', 'F'], '', ['alternative']],
+    ['Everybody Hurts', 'R.E.M.', 1992, 'D', 0, 2, ['D', 'G', 'A', 'Em'], 'I-IV', ['alternative']],
+    ['Creep', 'Radiohead', 1992, 'G', 0, 2, ['G', 'B', 'C', 'Cm'], 'I-III-IV-iv', ['alternative']],
+    ['Karma Police', 'Radiohead', 1997, 'Am', 0, 4, ['Am', 'D', 'Em', 'G', 'C'], '', ['alternative']],
+    ['Fake Plastic Trees', 'Radiohead', 1995, 'A', 0, 4, ['A', 'D', 'E', 'F#m', 'Bm'], '', ['alternative']],
+    ['Wonderful Tonight', 'Eric Clapton', 1977, 'G', 0, 2, ['G', 'D', 'C', 'Em'], 'I-V-IV', ['soft rock']],
+    ['Champagne Problems', 'Taylor Swift', 2020, 'C', 0, 3, ['C', 'G', 'Am', 'F', 'Em'], '', ['pop', 'piano-to-guitar']],
+    ['Cardigan', 'Taylor Swift', 2020, 'Em', 0, 3, ['Em', 'C', 'G', 'D', 'Am'], '', ['pop']],
+    ['Blank Space', 'Taylor Swift', 2014, 'F', 1, 2, ['Em', 'C', 'G', 'D'], 'vi-IV-I-V', ['pop']],
+    ['Drivers License', 'Olivia Rodrigo', 2021, 'B', 0, 3, ['B', 'F#', 'G#m', 'E'], 'I-V-vi-IV', ['pop']],
+    ['Someone You Loved', 'Lewis Capaldi', 2018, 'C', 0, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['pop']],
+    ['Say You Won\'t Let Go', 'James Arthur', 2016, 'E', 4, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['pop']],
+    ['Stay With Me', 'Sam Smith', 2014, 'C', 0, 2, ['Am', 'F', 'C'], 'vi-IV-I', ['pop', 'soul']],
+    ['Budapest (live)', 'George Ezra', 2014, 'F', 3, 2, ['D', 'G', 'A'], 'I-IV-V', ['pop']],
+    ['Skinny Love (cover)', 'Birdy', 2011, 'Am', 0, 3, ['Am', 'C', 'F', 'G'], '', ['indie']],
+    ['Holocene', 'Bon Iver', 2011, 'C', 0, 4, ['C', 'F', 'Am', 'G'], '', ['indie folk', 'open tuning']],
+    ['Re: Stacks', 'Bon Iver', 2007, 'C', 0, 4, ['C', 'Am', 'F', 'G'], '', ['indie folk', 'fingerstyle']],
+    ['Blowers Daughter', 'Damien Rice', 2002, 'Am', 0, 3, ['Am', 'C', 'G', 'F', 'Dm'], '', ['acoustic']],
+    ['Cannonball', 'Damien Rice', 2003, 'G', 0, 3, ['G', 'D', 'Em', 'C', 'Am'], '', ['acoustic']],
+    ['Chasing Cars', 'Snow Patrol', 2006, 'A', 0, 2, ['A', 'E', 'D', 'F#m'], 'I-V-IV', ['rock']],
+    ['Yellow', 'Coldplay', 2000, 'B', 0, 3, ['B', 'F#', 'E'], 'I-V-IV', ['rock']],
+    ['The Scientist', 'Coldplay', 2002, 'F', 0, 3, ['Dm', 'Bb', 'F', 'C'], 'vi-IV-I-V', ['rock', 'piano-to-guitar']],
+    ['Fix You', 'Coldplay', 2005, 'Eb', 3, 3, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['rock']],
+    ['Viva la Vida', 'Coldplay', 2008, 'Ab', 1, 3, ['C', 'D', 'G', 'Em'], 'IV-V-I-vi', ['rock']],
+
+    /* --- country --- */
+    ['Ring of Fire', 'Johnny Cash', 1963, 'G', 0, 1, ['G', 'C', 'D'], 'I-IV-V', ['country']],
+    ['Folsom Prison Blues', 'Johnny Cash', 1955, 'E', 0, 2, ['E', 'A', 'B7'], 'I-IV-V', ['country', 'blues']],
+    ['I Walk the Line', 'Johnny Cash', 1956, 'F', 0, 2, ['F', 'Bb', 'C'], 'I-IV-V', ['country']],
+    ['Jolene', 'Dolly Parton', 1973, 'Am', 4, 2, ['Am', 'C', 'G', 'Em'], 'i-III-VII-v', ['country']],
+    ['Coat of Many Colors', 'Dolly Parton', 1971, 'G', 0, 2, ['G', 'C', 'D'], 'I-IV-V', ['country']],
+    ['Wagon Wheel', 'Old Crow Medicine Show', 2004, 'A', 2, 2, ['G', 'D', 'Em', 'C'], 'I-V-vi-IV', ['country', 'bluegrass']],
+    ['Tennessee Whiskey', 'Chris Stapleton', 2015, 'A', 0, 3, ['A', 'Bm'], 'I-ii', ['country', 'soul']],
+    ['Crazy', 'Patsy Cline', 1961, 'Bb', 0, 4, ['Bb', 'G7', 'Cm', 'F7', 'Eb'], '', ['country', 'jazz harmony']],
+    ['Blue Eyes Crying in the Rain', 'Willie Nelson', 1975, 'C', 0, 2, ['C', 'F', 'G7'], 'I-IV-V', ['country']],
+    ['On the Road Again', 'Willie Nelson', 1980, 'E', 0, 3, ['E', 'A', 'B7', 'C#m'], '', ['country']],
+    ['The Gambler', 'Kenny Rogers', 1978, 'C', 0, 2, ['C', 'F', 'G'], 'I-IV-V', ['country']],
+    ['Man of Constant Sorrow', 'Soggy Bottom Boys', 2000, 'A', 2, 2, ['G', 'C', 'D'], 'I-IV-V', ['bluegrass']],
+    ['Wildwood Flower', 'The Carter Family', 1928, 'C', 0, 2, ['C', 'G7', 'F'], 'I-V-IV', ['old-time']],
+
+    /* --- blues --- */
+    ['Sweet Home Chicago', 'Robert Johnson', 1936, 'E', 0, 2, ['E7', 'A7', 'B7'], 'I7-IV7-V7', ['blues', '12-bar']],
+    ['Cross Road Blues', 'Robert Johnson', 1936, 'A', 0, 4, ['A7', 'D7', 'E7'], 'I7-IV7-V7', ['blues', 'slide']],
+    ['The Thrill Is Gone', 'B.B. King', 1969, 'Bm', 0, 3, ['Bm', 'Em', 'G', 'F#7'], 'i-iv-VI-V', ['blues']],
+    ['Pride and Joy', 'Stevie Ray Vaughan', 1983, 'E', 0, 4, ['E7', 'A7', 'B7'], 'I7-IV7-V7', ['blues', 'shuffle']],
+    ['Hoochie Coochie Man', 'Muddy Waters', 1954, 'A', 0, 2, ['A7', 'D7', 'E7'], 'I7-IV7-V7', ['blues']],
+    ['Before You Accuse Me', 'Eric Clapton', 1992, 'E', 0, 2, ['E7', 'A7', 'B7'], 'I7-IV7-V7', ['blues', '12-bar']],
+    ['Key to the Highway', 'Big Bill Broonzy', 1941, 'A', 0, 2, ['A7', 'E7', 'D7'], 'I-V-IV', ['blues', '8-bar']],
+    ['Statesboro Blues', 'Blind Willie McTell', 1928, 'D', 0, 4, ['D7', 'G7', 'A7'], 'I7-IV7-V7', ['blues', 'slide']],
+
+    /* --- jazz standards, mostly written before 1940 --- */
+    ['Autumn Leaves', 'Joseph Kosma', 1945, 'Gm', 0, 4, ['Cm7', 'F7', 'Bbmaj7', 'Ebmaj7', 'Am7b5', 'D7', 'Gm'], 'ii-V-I', ['jazz']],
+    ['All of Me', 'Gerald Marks', 1931, 'C', 0, 4, ['C', 'E7', 'A7', 'Dm', 'D7', 'G7'], '', ['jazz']],
+    ['Summertime', 'George Gershwin', 1935, 'Am', 0, 3, ['Am', 'E7', 'Dm', 'F', 'G7'], 'i-V7', ['jazz']],
+    ['Blue Bossa', 'Kenny Dorham', 1963, 'Cm', 0, 4, ['Cm7', 'Fm7', 'Dm7b5', 'G7', 'Ebm7', 'Ab7', 'Dbmaj7'], 'ii-V-i', ['jazz', 'bossa']],
+    ['Fly Me to the Moon', 'Bart Howard', 1954, 'Am', 0, 4, ['Am7', 'Dm7', 'G7', 'Cmaj7', 'Fmaj7', 'Bm7b5', 'E7'], 'circle of fifths', ['jazz']],
+    ['Girl from Ipanema', 'Antonio Carlos Jobim', 1962, 'F', 0, 5, ['Fmaj7', 'G7', 'Gm7', 'Gb7'], '', ['jazz', 'bossa']],
+    ['Georgia on My Mind', 'Hoagy Carmichael', 1930, 'F', 0, 5, ['Fmaj7', 'A7', 'Dm7', 'Bb', 'Gm7', 'C7'], '', ['jazz']],
+    ['Ain\'t Misbehavin\'', 'Fats Waller', 1929, 'Eb', 0, 5, ['Ebmaj7', 'Fm7', 'Bb7', 'Gm7', 'C7'], '', ['jazz', 'stride']],
+
+    /* --- soul, pop and standards worth a guitarist's time --- */
+    ['Stand By Me', 'Ben E. King', 1961, 'A', 0, 1, ['A', 'F#m', 'D', 'E'], 'I-vi-IV-V', ['soul']],
+    ['Ain\'t No Sunshine', 'Bill Withers', 1971, 'Am', 0, 2, ['Am', 'Em', 'G', 'Dm'], 'i-v-VII', ['soul']],
+    ['Lean on Me', 'Bill Withers', 1972, 'C', 0, 2, ['C', 'F', 'G', 'Am'], 'I-IV-V', ['soul']],
+    ['Superstition', 'Stevie Wonder', 1972, 'Eb', 0, 4, ['Eb7', 'Ab7', 'Bb7'], '', ['funk']],
+    ['Isn\'t She Lovely', 'Stevie Wonder', 1976, 'E', 0, 4, ['E', 'C#m7', 'F#7', 'B7', 'A'], '', ['soul']],
+    ['What\'s Going On', 'Marvin Gaye', 1971, 'E', 0, 4, ['Emaj7', 'C#m7', 'F#m7', 'B7'], '', ['soul']],
+    ['Killing Me Softly', 'Roberta Flack', 1973, 'Am', 0, 4, ['Am', 'D7', 'G', 'C', 'E7', 'F'], '', ['soul', 'pop']],
+    ['I Will Survive', 'Gloria Gaynor', 1978, 'Am', 0, 3, ['Am', 'Dm', 'G', 'Cmaj7', 'Fmaj7', 'Bm7b5', 'E7'], 'circle of fifths', ['disco']],
+    ['Hallelujah', 'Leonard Cohen', 1984, 'C', 0, 2, ['C', 'Am', 'F', 'G', 'E7'], 'I-vi-IV-V', ['folk', '6/8']],
+    ['Suzanne', 'Leonard Cohen', 1967, 'E', 0, 3, ['E', 'F#m', 'B7', 'A'], '', ['folk', 'fingerstyle']],
+    ['Famous Blue Raincoat', 'Leonard Cohen', 1971, 'Am', 0, 3, ['Am', 'F', 'C', 'G', 'Dm', 'E7'], '', ['folk']],
+    ['Bird on the Wire', 'Leonard Cohen', 1969, 'C', 0, 2, ['C', 'F', 'G', 'Am'], 'I-IV-V', ['folk']],
+
+    /* --- britpop, indie and other 90s/00s guitar staples --- */
+    ['Karma Chameleon', 'Culture Club', 1983, 'Bb', 3, 2, ['G', 'C', 'D', 'Em'], 'I-IV-V', ['pop']],
+    ['Common People', 'Pulp', 1995, 'C', 0, 2, ['C', 'F', 'G'], 'I-IV-V', ['britpop']],
+    ['Bittersweet Symphony', 'The Verve', 1997, 'E', 0, 2, ['E', 'B', 'C#m', 'A'], 'I-V-vi-IV', ['britpop']],
+    ['Song 2', 'Blur', 1997, 'E', 0, 2, ['E5', 'G5', 'A5', 'C5'], '', ['britpop', 'power chords']],
+    ['There She Goes', 'The La\'s', 1988, 'G', 0, 2, ['G', 'D', 'C', 'Em'], 'I-V-IV', ['indie']],
+    ['Boys Don\'t Cry', 'The Cure', 1979, 'A', 0, 2, ['A', 'D', 'E', 'F#m'], 'I-IV-V', ['post-punk']],
+    ['Where Is My Mind', 'Pixies', 1988, 'E', 0, 3, ['E', 'C#m', 'G#m', 'A'], '', ['alternative']],
+    ['About a Girl', 'Nirvana', 1989, 'Em', 0, 2, ['Em', 'G', 'C#', 'F#', 'A'], '', ['grunge', 'acoustic']],
+    ['Come As You Are', 'Nirvana', 1991, 'F#m', 0, 2, ['F#m', 'A', 'B'], 'i-III-IV', ['grunge']],
+    ['The Man Who Sold the World', 'Nirvana', 1993, 'A', 0, 3, ['Am', 'C', 'F', 'D'], '', ['grunge', 'acoustic']],
+    ['Black', 'Pearl Jam', 1991, 'E', 0, 3, ['E', 'A', 'C#m', 'B'], '', ['grunge']],
+    ['Under the Bridge', 'Red Hot Chili Peppers', 1991, 'D', 0, 4, ['D', 'F#m', 'E', 'B', 'G', 'A'], '', ['alternative']],
+    ['Californication', 'Red Hot Chili Peppers', 1999, 'Am', 0, 3, ['Am', 'F', 'C', 'G', 'Dm'], 'i-VI-III-VII', ['alternative']],
+    ['Otherside', 'Red Hot Chili Peppers', 1999, 'Am', 0, 3, ['Am', 'F', 'C', 'G'], 'i-VI-III-VII', ['alternative']],
+    ['Good Riddance (Time of Your Life)', 'Green Day', 1997, 'G', 0, 2, ['G', 'Cadd9', 'D', 'Em'], 'I-IV-V', ['punk', 'acoustic']],
+    ['Wake Me Up When September Ends', 'Green Day', 2004, 'G', 0, 3, ['G', 'D', 'Em', 'C', 'Bm'], '', ['punk', 'acoustic']],
+    ['Boulevard of Broken Dreams', 'Green Day', 2004, 'Fm', 0, 2, ['Fm', 'Ab', 'Eb', 'Bb'], 'i-III-VII-IV', ['punk']],
+    ['I\'m Gonna Be (500 Miles)', 'The Proclaimers', 1988, 'E', 0, 1, ['E', 'A', 'B'], 'I-IV-V', ['folk rock']],
+    ['Mr. Brightside', 'The Killers', 2003, 'Db', 1, 3, ['C', 'F', 'Am', 'G'], 'I-IV-vi-V', ['indie rock']],
+    ['Seven Nation Army', 'The White Stripes', 2003, 'Em', 0, 2, ['Em', 'G', 'C', 'B'], '', ['rock', 'riff']],
+    ['Dead Leaves and the Dirty Ground', 'The White Stripes', 2001, 'G', 0, 3, ['G', 'C', 'D'], '', ['rock']],
+    ['Take Me Out', 'Franz Ferdinand', 2004, 'Am', 0, 3, ['Am', 'F', 'C', 'G'], '', ['indie rock']],
+    ['Last Nite', 'The Strokes', 2001, 'A', 0, 3, ['A', 'D', 'E', 'F#m'], 'I-IV-V', ['indie rock']],
+    ['Chelsea Dagger', 'The Fratellis', 2006, 'A', 0, 2, ['A', 'D', 'E'], 'I-IV-V', ['indie rock']],
+    ['Ruby', 'Kaiser Chiefs', 2007, 'Bb', 0, 3, ['Bb', 'Gm', 'Eb', 'F'], 'I-vi-IV-V', ['indie rock']],
+    ['Sex on Fire', 'Kings of Leon', 2008, 'E', 0, 3, ['E', 'A', 'B', 'C#m'], '', ['rock']],
+    ['Use Somebody', 'Kings of Leon', 2008, 'C', 0, 2, ['C', 'Am', 'F', 'G'], 'I-vi-IV', ['rock']],
+    ['Do I Wanna Know?', 'Arctic Monkeys', 2013, 'Gm', 0, 3, ['Gm', 'Bb', 'F', 'Eb'], '', ['indie rock', 'riff']],
+    ['505', 'Arctic Monkeys', 2007, 'Dm', 0, 2, ['Dm', 'Gm'], 'i-iv', ['indie rock']],
+    ['Somebody That I Used to Know', 'Gotye', 2011, 'Dm', 2, 2, ['Dm', 'C', 'Bb', 'F'], 'i-VII-VI-III', ['pop']],
+    ['Pumped Up Kicks', 'Foster the People', 2010, 'F', 0, 2, ['F', 'Am', 'G', 'C'], 'IV-vi-V-I', ['indie pop']],
+    ['Radioactive', 'Imagine Dragons', 2012, 'Am', 0, 2, ['Am', 'C', 'G', 'D'], 'i-III-VII-IV', ['rock']],
+    ['Demons', 'Imagine Dragons', 2012, 'C', 0, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['rock']],
+    ['Counting Stars', 'OneRepublic', 2013, 'C#m', 4, 2, ['Am', 'C', 'G', 'F'], 'vi-I-V-IV', ['pop']],
+    ['Ho Hey (live)', 'The Lumineers', 2013, 'C', 0, 1, ['C', 'F', 'Am', 'G'], 'I-IV-vi-V', ['indie folk']],
+    ['Stubborn Love', 'The Lumineers', 2012, 'C', 0, 2, ['C', 'F', 'Am', 'G'], '', ['indie folk']],
+    ['Home', 'Edward Sharpe & the Magnetic Zeros', 2009, 'D', 0, 2, ['D', 'G', 'A'], 'I-IV-V', ['indie folk']],
+    ['Rivers and Roads', 'The Head and the Heart', 2011, 'C', 0, 3, ['C', 'G', 'Am', 'F', 'Em'], '', ['indie folk']],
+    ['Hard Times', 'Gillian Welch', 2011, 'G', 0, 3, ['G', 'C', 'D', 'Em'], '', ['americana']],
+    ['Time (The Revelator)', 'Gillian Welch', 2001, 'Am', 0, 3, ['Am', 'G', 'F', 'C'], '', ['americana']],
+    ['The Night We Met', 'Lord Huron', 2015, 'C', 0, 2, ['C', 'Am', 'F', 'G'], 'I-vi-IV-V', ['indie folk']],
+    ['Flightless Bird, American Mouth', 'Iron & Wine', 2007, 'E', 0, 3, ['E', 'A', 'B', 'C#m'], '', ['indie folk']],
+    ['Naked as We Came', 'Iron & Wine', 2004, 'G', 0, 3, ['G', 'C', 'D', 'Em'], '', ['indie folk', 'fingerstyle']],
+    ['First Day of My Life', 'Bright Eyes', 2005, 'C', 0, 2, ['C', 'G', 'Am', 'F', 'Em'], '', ['indie folk']],
+    ['Such Great Heights', 'The Postal Service', 2003, 'D', 0, 2, ['D', 'A', 'Bm', 'G'], 'I-V-vi-IV', ['indie']],
+    ['Bubbly', 'Colbie Caillat', 2007, 'A', 4, 2, ['F', 'C', 'Dm', 'Bb'], '', ['pop', 'fingerstyle']],
+    ['Come Away with Me', 'Norah Jones', 2002, 'C', 0, 3, ['C', 'Am', 'F', 'G', 'Em'], '', ['jazz pop']],
+    ['Don\'t Know Why', 'Norah Jones', 2002, 'Bb', 0, 5, ['Bbmaj7', 'Gm7', 'Cm7', 'F7', 'Eb'], '', ['jazz pop']],
+    ['Valerie', 'Amy Winehouse', 2007, 'Eb', 0, 3, ['Eb', 'Fm', 'Bb', 'Gm'], 'I-ii-V', ['soul']],
+    ['Back to Black', 'Amy Winehouse', 2006, 'Dm', 0, 3, ['Dm', 'Gm', 'Bb', 'A7'], 'i-iv-VI-V', ['soul']],
+    ['Rehab', 'Amy Winehouse', 2006, 'C', 0, 3, ['C', 'Eb', 'F', 'Bb'], '', ['soul']],
+    ['Skinny Genes', 'Eliza Doolittle', 2010, 'C', 0, 2, ['C', 'F', 'G', 'Am'], '', ['pop']],
+    ['Budapest (acoustic)', 'George Ezra', 2014, 'F', 3, 2, ['D', 'G', 'A'], 'I-IV-V', ['pop']],
+    ['Shotgun', 'George Ezra', 2018, 'D', 0, 2, ['D', 'G', 'A', 'Bm'], 'I-IV-V', ['pop']],
+    ['Dance Monkey', 'Tones and I', 2019, 'F#m', 2, 2, ['Em', 'C', 'G', 'D'], 'i-VI-III-VII', ['pop']],
+    ['Watermelon Sugar', 'Harry Styles', 2019, 'C', 0, 3, ['C', 'Am', 'F', 'G'], '', ['pop']],
+    ['Falling', 'Harry Styles', 2019, 'Db', 1, 3, ['C', 'Em', 'Am', 'F'], '', ['pop']],
+    ['Heat Waves', 'Glass Animals', 2020, 'B', 0, 3, ['B', 'F#', 'G#m', 'E'], 'I-V-vi-IV', ['pop']],
+    ['Sunflower', 'Post Malone', 2018, 'D', 0, 3, ['D', 'Bm', 'G', 'A'], 'I-vi-IV-V', ['pop']],
+    ['Circles', 'Post Malone', 2019, 'C', 0, 3, ['C', 'Am', 'F', 'G', 'Dm'], '', ['pop']],
+    ['Riptide (acoustic)', 'Vance Joy', 2014, 'C', 1, 2, ['Am', 'G', 'C', 'F'], 'vi-V-I-IV', ['indie pop']],
+    ['Georgia', 'Vance Joy', 2014, 'C', 0, 2, ['C', 'G', 'Am', 'F'], 'I-V-vi-IV', ['indie pop']],
+    ['Budapest II', 'George Ezra', 2014, 'F', 3, 2, ['D', 'G', 'A'], 'I-IV-V', ['pop']],
+    ['Wagon Wheel (Darius Rucker)', 'Darius Rucker', 2013, 'A', 2, 2, ['G', 'D', 'Em', 'C'], 'I-V-vi-IV', ['country']],
+    ['Free Bird', 'Lynyrd Skynyrd', 1973, 'G', 0, 5, ['G', 'D', 'Em', 'F', 'C'], '', ['southern rock']],
+    ['Blackbird (Beatles)', 'The Beatles', 1968, 'G', 0, 4, ['G', 'Am7', 'C', 'D', 'Em'], '', ['fingerstyle']],
+    ['Here Comes the Sun', 'The Beatles', 1969, 'A', 7, 3, ['D', 'G', 'A', 'Bm'], '', ['pop', 'fingerstyle']],
+    ['Norwegian Wood', 'The Beatles', 1965, 'E', 0, 2, ['E', 'D', 'A', 'Em', 'Am'], 'I-VII-IV', ['folk rock']],
+    ['Yesterday', 'The Beatles', 1965, 'F', 2, 3, ['G', 'F#m', 'Bm', 'E7', 'Am', 'C', 'D'], '', ['pop']],
+    ['While My Guitar Gently Weeps', 'The Beatles', 1968, 'Am', 0, 4, ['Am', 'G', 'D', 'F', 'E7', 'C'], '', ['rock']],
+    ['Something', 'The Beatles', 1969, 'C', 0, 4, ['C', 'Cmaj7', 'C7', 'F', 'D7', 'G', 'Am'], '', ['pop']],
+    ['Hey Jude', 'The Beatles', 1968, 'F', 0, 3, ['F', 'C', 'Bb', 'Dm', 'Gm'], 'I-V-IV', ['pop']],
+    ['In My Life', 'The Beatles', 1965, 'A', 0, 3, ['A', 'E', 'F#m', 'D', 'Bm'], '', ['pop']],
+    ['Wish You Were Here (live)', 'Pink Floyd', 1975, 'G', 0, 3, ['G', 'Em7', 'A7sus4', 'C', 'D'], '', ['rock']],
+    ['Comfortably Numb', 'Pink Floyd', 1979, 'Bm', 0, 4, ['Bm', 'A', 'G', 'Em', 'D', 'C'], 'i-VII-VI', ['rock']],
+    ['Time', 'Pink Floyd', 1973, 'F#m', 0, 4, ['F#m', 'A', 'E', 'D', 'C#m', 'Bm'], '', ['rock']],
+    ['Nothing Else Matters', 'Metallica', 1991, 'Em', 0, 4, ['Em', 'D', 'C', 'G', 'Am', 'B7'], '', ['rock', 'fingerstyle']],
+    ['Fade to Black', 'Metallica', 1984, 'Bm', 0, 4, ['Bm', 'G', 'D', 'A', 'Em'], 'i-VI-III-VII', ['rock']],
+    ['Wanted Dead or Alive', 'Bon Jovi', 1986, 'D', 0, 3, ['D', 'C', 'G', 'Em', 'Am'], '', ['rock']],
+    ['Livin\' on a Prayer', 'Bon Jovi', 1986, 'Em', 0, 3, ['Em', 'C', 'D', 'G'], 'i-VI-VII', ['rock']],
+    ['Sweet Child o\' Mine', 'Guns N\' Roses', 1987, 'D', 0, 4, ['D', 'C', 'G', 'A', 'Em'], 'I-VII-IV', ['rock', 'riff']],
+    ['Knockin\' on Heaven\'s Door (GNR)', 'Guns N\' Roses', 1990, 'G', 0, 2, ['G', 'D', 'Am', 'C'], '', ['rock']],
+    ['Enter Sandman', 'Metallica', 1991, 'Em', 0, 3, ['Em', 'G', 'A', 'C'], '', ['rock', 'riff']],
+    ['Smells Like Teen Spirit', 'Nirvana', 1991, 'Fm', 0, 2, ['Fm', 'Bb', 'Ab', 'Db'], 'i-iv-bIII-bVI', ['grunge', 'power chords']],
+    ['Rockin\' in the Free World', 'Neil Young', 1989, 'Em', 0, 2, ['Em', 'D', 'C'], 'i-VII-VI', ['rock']],
+    ['Harvest Moon', 'Neil Young', 1992, 'D', 0, 3, ['D', 'Em7', 'A7', 'G'], '', ['folk rock']],
+    ['After the Gold Rush', 'Neil Young', 1970, 'D', 0, 3, ['D', 'G', 'A', 'Bm'], '', ['folk rock']]
+  ];
+
+  var FIELDS = ['title', 'artist', 'year', 'key', 'capo', 'difficulty', 'chords', 'progression', 'tags'];
+
+  GL.songIndex = ROWS.map(function (row, i) {
+    var o = { id: 'idx' + i };
+    FIELDS.forEach(function (f, n) { o[f] = row[n]; });
+    return o;
+  });
+
+  /* Links out to sites that are licensed to publish the actual chart. */
+  GL.songIndexLinks = function (entry) {
+    var q = encodeURIComponent(entry.title + ' ' + entry.artist);
+    return [
+      { label: 'Ultimate Guitar', url: 'https://www.ultimate-guitar.com/search.php?search_type=title&value=' + q },
+      { label: 'Songsterr', url: 'https://www.songsterr.com/?pattern=' + q },
+      { label: 'Listen', url: 'https://www.youtube.com/results?search_query=' + q }
+    ];
+  };
+}(window.GL = window.GL || {}));
